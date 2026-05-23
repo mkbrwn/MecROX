@@ -47,4 +47,8 @@ summary_spo2 %>%
     gt::gtsave("output/tables/spo2_12h_by_treatment.html")
 
 summary_spo2 %>%
+    as_gt() %>%
+    gt::gtsave("output/tables/spo2_12h_by_treatment.png")
+
+summary_spo2 %>%
     as_hux_xlsx("output/tables/spo2_12h_by_treatment.xlsx")
