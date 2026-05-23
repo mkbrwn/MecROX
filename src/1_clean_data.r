@@ -1,7 +1,9 @@
 # this script cleans data for analysis of SPo2 within the UkRox dataset
 
 #load libraries             
-library(tidyverse, gtsummary, readxl)
+library(tidyverse)
+library(gtsummary)
+library(readxl)
 
 #load data 
 data <- read_excel("data/UKRoxData.xlsx")
