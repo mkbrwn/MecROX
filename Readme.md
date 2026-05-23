@@ -21,7 +21,7 @@ Cleans the raw UKRox dataset:
 - Filters to `TimeSinceRandomisation <= 120` hours (5 days)
 
 ### `src/2_Spo2_figures.r`
-Produces the following figures, all stratified by treatment group:
+Produces exploratory figures stratified by treatment group:
 
 | Output file | Description |
 |---|---|
@@ -31,6 +31,22 @@ Produces the following figures, all stratified by treatment group:
 | `lowess_spo2_dots_split.png` | As above with individual data points (grey pre-, coloured post-randomisation) |
 | `gam_spo2.png` | GAM curve (post-randomisation only) |
 | `gam_me_spo2.png` | Mixed effects GAM with random intercept and slope per `MECROXStudy` |
+
+### `src/2_1_Spo2_figure_final.r`
+Produces the final publication-ready figure:
+
+| Output file | Description |
+|---|---|
+| `lowess_spo2_split.png` | Linear trend pre-randomisation + Lowess post-randomisation, stratified by treatment group |
+
+Figure features:
+- Pre-randomisation (`< 0` h): single combined linear trend in grey with 95% CI
+- Post-randomisation (0–120 h): separate Lowess curves per treatment group with 95% CI (span = 0.75)
+- Dashed vertical line at randomisation (time = 0)
+- x-axis: `-12` label for pre-randomisation, then 0–120 h in 24 h intervals, no padding
+- y-axis: 88–100% in 2% intervals, no padding
+- Legend positioned inside top-right, transparent background
+- Open axis style (no top/right border); base font size 16
 
 ### `src/3_Spo2_table.r`
 Produces a summary table of mean SpO2 (SD) per 12-hour time window since randomisation, stratified by treatment group:
