@@ -32,3 +32,7 @@ data <- data %>%
 #filter if time since randomisation is greater than 120 and < -12 (elibilitycriteria is 12 hours pre-randomisation)
 data <- data %>%
     filter(TimeSinceRandomisation <= 120 & TimeSinceRandomisation >= -12)
+
+# recode treatment labels
+data <- data %>%
+    mutate(Treatment = recode(Treatment, "Usual" = "Usual care"))
