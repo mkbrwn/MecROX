@@ -1,68 +1,92 @@
-# MecROX — SpO2 Analysis
+# MecROX — SpO2 & PF Ratio Analysis
 
-Analysis of SpO2 values over time since randomisation in the UKRox dataset.
+Analysis of SpO2 and PF ratio values over time since randomisation in the UKRox dataset.
 
 ## Project Structure
 
 ```
-data/               # Raw data (gitignored)
-src/                # Analysis scripts
-output/figures/     # Generated plots
-output/tables/      # Generated tables
+data/               # Raw input data files (gitignored)
+src/                # Analysis scripts (run in order)
+output/
+  figures/          # Generated plots (.png)
+  tables/           # Generated summary tables (.html, .png, .xlsx)
 ```
 
 ## Scripts
 
+Run scripts in numerical order. Each script sources `1_clean_data.r` automatically.
+
 ### `src/1_clean_data.r`
-Cleans the raw UKRox dataset:
-- Selects relevant variables: `MECROXStudy`, `IMVStart`, `UKRoxTime`, `SpO2Time`, `SpO2Value`, `Treatment`
-- Removes rows with missing `MECROXStudy`, `SpO2Time`, or `SpO2Value`
-- Calculates `TimeSinceRandomisation` (hours from `UKRoxTime` to `SpO2Time`)
-- Filters to `TimeSinceRandomisation <= 120` hours (5 days)
+Loads and cleans both raw datasets:
+
+**SpO2 data** (`UKRoxData.xlsx`) → `data`
+- Selects `MECROXStudy`, `IMVStart`, `UKRoxTime`, `SpO2Time`, `SpO2Value`, `Treatment`
+- Removes SpO2 values below 80 and missing records
+- Calculates `TimeSinceRandomisation` (hours); filters to −12 to +120 h
+
+**PF ratio data** (`UKRoxData_V3.xlsx`) → `data_pfratio`
+- Combines `PFRatio_Between_IMVStartTime_&_UKRoxTime` and `PFRatio_Between_UKRoxTime_+_5DaysUKRoxTime` per patient
+- Parses comma-separated `(datetime)value` entries into individual rows
+- Calculates `TimeSinceRandomisation`; filters to −12 to +120 h
+
+---
 
 ### `src/2_Spo2_figures.r`
-Produces exploratory figures stratified by treatment group:
+Exploratory SpO2 figures stratified by treatment group.
 
-| Output file | Description |
+| Output | Description |
 |---|---|
-| `lowess_spo2.png` | Lowess curve (post-randomisation only), y: 88–100%, x: ≤120 h |
+| `lowess_spo2.png` | Lowess curve, post-randomisation only |
 | `lowess_spo2_dot.png` | Lowess curve with individual data points |
-| `lowess_spo2_split.png` | Linear trend pre-randomisation + Lowess post-randomisation |
-| `lowess_spo2_dots_split.png` | As above with individual data points (grey pre-, coloured post-randomisation) |
-| `gam_spo2.png` | GAM curve (post-randomisation only) |
-| `gam_me_spo2.png` | Mixed effects GAM with random intercept and slope per `MECROXStudy` |
+| `lowess_spo2_split.png` | Linear pre-randomisation trend + Lowess post-randomisation |
+| `lowess_spo2_dots_split.png` | As above with individual data points |
+| `gam_spo2.png` | GAM curve, post-randomisation only |
+| `gam_me_spo2.png` | Mixed effects GAM (random intercept + slope per `MECROXStudy`) |
 
 ### `src/2_1_Spo2_figure_final.r`
-Produces the final publication-ready figure:
+Final publication-ready SpO2 figure.
 
-| Output file | Description |
+| Output | Description |
 |---|---|
-| `lowess_spo2_split.png` | Linear trend pre-randomisation + Lowess post-randomisation, stratified by treatment group |
+| `lowess_spo2_split.png` | Linear pre-randomisation trend + Lowess post-randomisation, by treatment |
 
-Figure features:
-- Pre-randomisation (`< 0` h): single combined linear trend in grey with 95% CI
-- Post-randomisation (0–120 h): separate Lowess curves per treatment group with 95% CI (span = 0.75)
-- Dashed vertical line at randomisation (time = 0)
-- x-axis: `-12` label for pre-randomisation, then 0–120 h in 24 h intervals, no padding
-- y-axis: 88–100% in 2% intervals, no padding
-- Legend positioned inside top-right, transparent background
-- Open axis style (no top/right border); base font size 16
+- Pre-randomisation: single combined linear trend (grey, 95% CI)
+- Post-randomisation: separate Lowess curves per treatment (span = 0.75, 95% CI)
+- x-axis: −12 to 120 h; y-axis: 88–100% in 2% steps
+- Legend inside top-right; open axis style; base font size 16
+
+### `src/2_2_PFRatio_figure.r`
+Final publication-ready PF ratio figure with patient count table.
+
+| Output | Description |
+|---|---|
+| `lowess_pfratio_split.png` | Linear pre-randomisation trend + Lowess post-randomisation, by treatment, with n per 12-hour interval below |
+
+- Same style as SpO2 figure; y-axis: PF ratio (kPa)
+- Count panel below shows number of distinct patients per treatment per 12-hour bin
+
+---
 
 ### `src/3_Spo2_table.r`
-Produces a summary table of mean SpO2 (SD) per 12-hour time window since randomisation, stratified by treatment group:
-- Pre-randomisation values (`TimeSinceRandomisation < 0`) are collapsed into a single `< 0` window
-- 12-hour windows from 0 to 108 hours (window at 120 h excluded)
-- Rows with unknown or missing treatment are excluded
-- Saved as HTML, PNG, and Excel
+Summary table of mean SpO2 (SD) per 12-hour window, by treatment group.
 
-| Output file | Description |
+| Output | Description |
 |---|---|
-| `spo2_12h_by_treatment.html` | Formatted summary table (HTML) |
-| `spo2_12h_by_treatment.png` | Formatted summary table (PNG) |
-| `spo2_12h_by_treatment.xlsx` | Summary table (Excel) |
+| `spo2_12h_by_treatment_obs.html/.png/.xlsx` | Observation-level summary |
+| `spo2_12h_by_treatment_patient_level.html/.png/.xlsx` | Patient-level means summary |
+
+### `src/4_PFRatio_table.r`
+Summary table of mean PF ratio (SD) per 12-hour window, by treatment group.
+
+| Output | Description |
+|---|---|
+| `pfratio_12h_by_treatment_obs.html/.png/.xlsx` | Observation-level summary |
+| `pfratio_12h_by_treatment_patient_level.html/.png/.xlsx` | Patient-level means summary |
+
+---
 
 ## Notes
-- All figures use `Treatment` as the stratifying variable
-- Pre-randomisation period (`TimeSinceRandomisation < 0`) uses a single combined linear trend where shown
+- All figures and tables stratify by `Treatment`
+- Pre-randomisation window is collapsed to a single bin (−12 to 0 h)
 - Mixed effects GAM fitted using `mgcv::gamm`
-- Tables use `gtsummary`; Excel export requires `huxtable`
+- Tables use `gtsummary`; figures combined with `patchwork`; Excel export requires `huxtable`
