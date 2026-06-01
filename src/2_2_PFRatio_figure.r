@@ -38,11 +38,11 @@ lowess_split_plot_pfratio <- ggplot(data_pfratio, aes(x = TimeSinceRandomisation
     ) +
     scale_x_continuous(
         limits = c(-12, 120),
-        breaks = seq(-12, 120, by = 12),
+        breaks = c(-12, seq(0, 120, by = 24)),
         expand = expansion(mult = c(0, 0))
     ) +
     labs(
-        x = NULL,
+        x = "Time since randomisation (hours)",
         y = "PF ratio (kPa)",
     ) +
     theme_bw(base_size = 16) +
@@ -53,30 +53,7 @@ lowess_split_plot_pfratio <- ggplot(data_pfratio, aes(x = TimeSinceRandomisation
         legend.key = element_rect(fill = NA),
         panel.border = element_blank(),
         axis.line = element_line(colour = "black"),
-        axis.text.x = element_blank(),
-        axis.ticks.x = element_blank(),
-        plot.margin = margin(5.5, 20, 0, 5.5)
+        plot.margin = margin(5.5, 20, 5.5, 5.5)
     )
 
-# count table panel
-count_panel <- ggplot(pfratio_counts, aes(x = interval, y = fct_rev(factor(Treatment)), label = n)) +
-    geom_text(size = 3.5) +
-    scale_x_continuous(
-        limits = c(-12, 120),
-        breaks = seq(-12, 120, by = 12),
-        expand = expansion(mult = c(0, 0))
-    ) +
-    labs(x = "Time since randomisation (hours)", y = NULL) +
-    theme_bw(base_size = 16) +
-    theme(
-        panel.grid = element_blank(),
-        panel.border = element_blank(),
-        axis.line.x = element_line(colour = "black"),
-        axis.ticks.y = element_blank(),
-        plot.margin = margin(0, 20, 5.5, 5.5)
-    )
-
-combined_plot <- lowess_split_plot_pfratio / count_panel +
-    plot_layout(heights = c(4, 1))
-
-ggsave("output/figures/lowess_pfratio_split.png", plot = combined_plot, width = 10, height = 6, dpi = 300)
+ggsave("output/figures/lowess_pfratio_split.png", plot = lowess_split_plot_pfratio, width = 8, height = 5, dpi = 300)
