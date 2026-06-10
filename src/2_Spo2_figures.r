@@ -2,6 +2,22 @@
 
 source("src/1_clean_data.r")
 
+common_plot_theme <- theme_bw(base_size = 16) +
+    theme(
+        legend.position = "inside",
+        legend.position.inside = c(0.97, 0.97),
+        legend.justification = c(1, 1),
+        legend.background = element_rect(fill = alpha("white", 0)),
+        legend.key = element_rect(fill = NA),
+        legend.title = element_text(size = 14),
+        legend.text = element_text(size = 12),
+        axis.title = element_text(size = 16),
+        axis.text = element_text(size = 14),
+        panel.border = element_blank(),
+        axis.line = element_line(colour = "black"),
+        plot.margin = margin(5.5, 20, 5.5, 5.5)
+    )
+
 # produce a Lowess curve of SpO2 values over time since randomisation
 lowess_plot_dot <- ggplot(data, aes(x = TimeSinceRandomisation, y = SpO2Value, colour = factor(Treatment))) +
     geom_point(alpha = 0.2, size = 0.5) +
@@ -9,12 +25,13 @@ lowess_plot_dot <- ggplot(data, aes(x = TimeSinceRandomisation, y = SpO2Value, c
     scale_colour_brewer(palette = "Set1", name = "Treatment") +
     labs(
         x = "Time Since Randomisation (hours)",
-        y = "SpO2 (%)",
-        title = "Lowess Curve of SpO2 Values Over Time Since Randomisation"
-    ) +
-    theme_bw() + ylim(85, 100)
+        y = "SpO2 (%)"
+    ) + 
+    common_plot_theme + 
+    theme(legend.position = "right", legend.justification = "center") +
+    ylim(85, 100)
 
-ggsave("output/figures/lowess_spo2_dot.png", plot = lowess_plot_dot, width = 8, height = 5, dpi = 300)
+ggsave("output/figures/lowess_spo2_dot.png", plot = lowess_plot_dot, width = 10, height = 5, dpi = 300)
 
 # produce a Lowess curve with separate pre- and post-randomisation segments
 lowess_split_dots_plot <- ggplot(data, aes(x = TimeSinceRandomisation, y = SpO2Value)) +
@@ -46,12 +63,13 @@ lowess_split_dots_plot <- ggplot(data, aes(x = TimeSinceRandomisation, y = SpO2V
     scale_x_continuous(breaks = seq(floor(min(data$TimeSinceRandomisation, na.rm = TRUE) / 24) * 24, 120, by = 24)) +
     labs(
         x = "Time Since Randomisation (hours)",
-        y = "SpO2 (%)",
-        title = "Lowess Curve of SpO2 Values Over Time Since Randomisation",
-    ) +
-    theme_bw() + ylim(85, 100)
+        y = "SpO2 (%)"
+    ) + 
+    common_plot_theme + 
+    theme(legend.position = "right", legend.justification = "center") +
+    ylim(85, 100)
 
-ggsave("output/figures/lowess_spo2_dots_split.png", plot = lowess_split_dots_plot, width = 8, height = 5, dpi = 300)
+ggsave("output/figures/lowess_spo2_dots_split.png", plot = lowess_split_dots_plot, width = 10, height = 5, dpi = 300)
 
 # produce a Lowess curve of SpO2 values over time since randomisation
 lowess_plot <- ggplot(data, aes(x = TimeSinceRandomisation, y = SpO2Value, colour = factor(Treatment))) +
@@ -59,10 +77,9 @@ lowess_plot <- ggplot(data, aes(x = TimeSinceRandomisation, y = SpO2Value, colou
     scale_colour_brewer(palette = "Set1", name = "Treatment") +
     labs(
         x = "Time Since Randomisation (hours)",
-        y = "SpO2 (%)",
-        title = "Lowess Curve of SpO2 Values Over Time Since Randomisation"
+        y = "SpO2 (%)"
     ) +
-    theme_bw() +
+    common_plot_theme +
     scale_y_continuous(limits = c(88, 100), breaks = seq(88, 100, by = 2)) +
     scale_x_continuous(limits = c(NA, 120), breaks = seq(0, 120, by = 24))
 
@@ -76,10 +93,9 @@ gam_plot <- ggplot(data %>% filter(TimeSinceRandomisation >= 0), aes(x = TimeSin
     scale_colour_brewer(palette = "Set1", name = "Treatment") +
     labs(
         x = "Time Since Randomisation (hours)",
-        y = "SpO2 (%)",
-        title = "GAM Curve of SpO2 Values Over Time Since Randomisation"
+        y = "SpO2 (%)"
     ) +
-    theme_bw()
+    common_plot_theme
 
 ggsave("output/figures/gam_spo2.png", plot = gam_plot, width = 8, height = 5, dpi = 300)
 
@@ -113,11 +129,9 @@ gam_me_plot <- ggplot(pred_data, aes(x = TimeSinceRandomisation, y = SpO2Value, 
     scale_fill_brewer(palette = "Set1", name = "Treatment") +
     labs(
         x = "Time Since Randomisation (hours)",
-        y = "SpO2 (%)",
-        title = "Mixed Effects GAM of SpO2 Values Over Time Since Randomisation",
-        subtitle = "Random intercept and slope for MECROXStudy"
+        y = "SpO2 (%)"
     ) +
-    theme_bw()
+    common_plot_theme
 
 ggsave("output/figures/gam_me_spo2.png", plot = gam_me_plot, width = 8, height = 5, dpi = 300)
 

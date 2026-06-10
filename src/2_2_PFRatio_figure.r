@@ -47,10 +47,12 @@ lowess_split_plot_pfratio <- ggplot(data_pfratio, aes(x = TimeSinceRandomisation
     ) +
     theme_bw(base_size = 16) +
     theme(
-        legend.position = "inside", legend.position.inside = c(0.97, 0.97),
-        legend.justification = c(1, 1),
+        legend.position = "inside", legend.position.inside = c(0.85, 0.40), legend.justification = c(1, 1),
         legend.background = element_rect(fill = alpha("white", 0)),
-        legend.key = element_rect(fill = NA),
+        legend.title = element_text(size = 14),
+        legend.text = element_text(size = 12),
+        axis.title = element_text(size = 16),
+        axis.text = element_text(size = 14),
         panel.border = element_blank(),
         axis.line = element_line(colour = "black"),
         plot.margin = margin(5.5, 20, 5.5, 5.5)

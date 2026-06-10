@@ -39,12 +39,16 @@ lowess_split_plot <- ggplot(data, aes(x = TimeSinceRandomisation, y = SpO2Value)
         y = "SpO2 (%)",
     ) +
     theme_bw(base_size = 16) +
-    theme(legend.position = "inside", legend.position.inside = c(0.97, 0.97), legend.justification = c(1, 1),
-          legend.background = element_rect(fill = alpha("white", 0)),
-          legend.key = element_rect(fill = NA),
-          panel.border = element_blank(),
-          axis.line = element_line(colour = "black"),
-          plot.margin = margin(5.5, 20, 5.5, 5.5)) +
+        theme(legend.position = "inside", legend.position.inside = c(0.97, 0.97), legend.justification = c(1, 1),
+            legend.background = element_rect(fill = alpha("white", 0)),
+            legend.key = element_rect(fill = NA),
+            legend.title = element_text(size = 14),
+            legend.text = element_text(size = 12),
+            axis.title = element_text(size = 16),
+            axis.text = element_text(size = 14),
+            panel.border = element_blank(),
+            axis.line = element_line(colour = "black"),
+            plot.margin = margin(5.5, 20, 5.5, 5.5)) +
     scale_y_continuous(limits = c(88, 100), breaks = seq(88, 100, by = 2), expand = expansion(mult = c(0, 0)))
 
 ggsave("output/figures/lowess_spo2_split.png", plot = lowess_split_plot, width = 8, height = 5, dpi = 300)

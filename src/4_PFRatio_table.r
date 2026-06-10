@@ -39,9 +39,15 @@ summary_pfratio <- pfratio_12h_wide %>%
         digits    = all_continuous() ~ 2,
         missing   = "no"
     ) %>%
-    add_p(test = all_continuous() ~ "t.test") %>%
+    add_difference(
+        test = all_continuous() ~ "t.test",
+        estimate_fun = all_continuous() ~ label_style_number(digits = 2)
+    ) %>%
     add_n(col_label = "**Patients**") %>%
-    modify_header(label ~ "**Time Since Randomisation (hours)**")
+    modify_header(
+        label ~ "**Time Since Randomisation (hours)**",
+        estimate ~ "**Mean Difference**"
+    )
 
 summary_pfratio %>%
     as_gt() %>%
@@ -79,9 +85,15 @@ summary_pfratio_obs <- data_pfratio %>%
         digits    = all_continuous() ~ 2,
         missing   = "no"
     ) %>%
-    add_p(test = all_continuous() ~ "t.test") %>%
+    add_difference(
+        test = all_continuous() ~ "t.test",
+        estimate_fun = all_continuous() ~ label_style_number(digits = 2)
+    ) %>%
     add_n(col_label = "**Observations**") %>%
-    modify_header(label ~ "**Time Since Randomisation (hours)**")
+    modify_header(
+        label ~ "**Time Since Randomisation (hours)**",
+        estimate ~ "**Mean Difference**"
+    )
 
 summary_pfratio_obs %>%
     as_gt() %>%
