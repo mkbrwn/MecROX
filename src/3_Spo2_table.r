@@ -41,7 +41,7 @@ summary_spo2 <- spo2_12h_wide %>%
         missing    = "no"
     ) %>%
     add_difference(
-        test = all_continuous() ~ "t.test",
+        test = all_continuous() ~ "wilcox.test",
         estimate_fun = all_continuous() ~ label_style_number(digits = 2)
     ) %>%
     add_n(col_label = "**Patients**") %>%
@@ -87,7 +87,7 @@ summary_spo2_obs <- data %>%
         missing    = "no"
     ) %>%
     add_difference(
-        test = all_continuous() ~ "t.test",
+        test = all_continuous() ~ "wilcox.test",
         estimate_fun = all_continuous() ~ label_style_number(digits = 2)
     ) %>%
     add_n(col_label = "**Observations**") %>%

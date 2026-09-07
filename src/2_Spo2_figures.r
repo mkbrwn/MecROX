@@ -29,7 +29,8 @@ lowess_plot_dot <- ggplot(data, aes(x = TimeSinceRandomisation, y = SpO2Value, c
     ) + 
     common_plot_theme + 
     theme(legend.position = "right", legend.justification = "center") +
-    ylim(85, 100)
+    ylim(85, 100) +
+    coord_cartesian()
 
 ggsave("output/figures/lowess_spo2_dot.png", plot = lowess_plot_dot, width = 10, height = 5, dpi = 300)
 
@@ -67,7 +68,8 @@ lowess_split_dots_plot <- ggplot(data, aes(x = TimeSinceRandomisation, y = SpO2V
     ) + 
     common_plot_theme + 
     theme(legend.position = "right", legend.justification = "center") +
-    ylim(85, 100)
+    ylim(85, 100) +
+    coord_cartesian()
 
 ggsave("output/figures/lowess_spo2_dots_split.png", plot = lowess_split_dots_plot, width = 10, height = 5, dpi = 300)
 
@@ -81,6 +83,7 @@ lowess_plot <- ggplot(data, aes(x = TimeSinceRandomisation, y = SpO2Value, colou
     ) +
     common_plot_theme +
     scale_y_continuous(limits = c(88, 100), breaks = seq(88, 100, by = 2)) +
+    coord_cartesian() +
     scale_x_continuous(limits = c(NA, 120), breaks = seq(0, 120, by = 24))
 
 ggsave("output/figures/lowess_spo2.png", plot = lowess_plot, width = 8, height = 5, dpi = 300)
@@ -95,7 +98,8 @@ gam_plot <- ggplot(data %>% filter(TimeSinceRandomisation >= 0), aes(x = TimeSin
         x = "Time Since Randomisation (hours)",
         y = "SpO2 (%)"
     ) +
-    common_plot_theme
+    common_plot_theme +
+    coord_cartesian()
 
 ggsave("output/figures/gam_spo2.png", plot = gam_plot, width = 8, height = 5, dpi = 300)
 
@@ -131,7 +135,8 @@ gam_me_plot <- ggplot(pred_data, aes(x = TimeSinceRandomisation, y = SpO2Value, 
         x = "Time Since Randomisation (hours)",
         y = "SpO2 (%)"
     ) +
-    common_plot_theme
+    common_plot_theme +
+    coord_cartesian()
 
 ggsave("output/figures/gam_me_spo2.png", plot = gam_me_plot, width = 8, height = 5, dpi = 300)
 

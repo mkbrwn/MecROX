@@ -12,22 +12,35 @@ output/
   tables/           # Generated summary tables (.html, .png, .xlsx)
 ```
 
+## Package management
+
+This project uses [`renv`](https://rstudio.github.io/renv/) to pin package versions. On first opening the project, run:
+
+```r
+renv::restore()
+```
+
+to install the exact package versions recorded in `renv.lock`. After adding or updating a package, run `renv::snapshot()` to update the lockfile.
+
 ## Scripts
 
 Run scripts in numerical order. Each script sources `1_clean_data.r` automatically.
 
 ### `src/1_clean_data.r`
-Loads and cleans both raw datasets:
+Loads and cleans both raw datasets, sourcing `src/1_1_plymouth_clean_data.r` to bring in the Plymouth patients:
 
-**SpO2 data** (`UKRoxData.xlsx`) → `data`
+**SpO2 data** (`UKRoxData.xlsx` + Plymouth `MecRox_Data_Plymouth_reorganised.xlsx`) → `data`
 - Selects `MECROXStudy`, `IMVStart`, `UKRoxTime`, `SpO2Time`, `SpO2Value`, `Treatment`
 - Removes SpO2 values below 80 and missing records
 - Calculates `TimeSinceRandomisation` (hours); filters to −12 to +120 h
 
-**PF ratio data** (`UKRoxData_V3.xlsx`) → `data_pfratio`
+**PF ratio data** (`UKRoxData_V3.xlsx` + Plymouth `MecRox_Data_Plymouth_reorganised.xlsx`) → `data_pfratio`
 - Combines `PFRatio_Between_IMVStartTime_&_UKRoxTime` and `PFRatio_Between_UKRoxTime_+_5DaysUKRoxTime` per patient
 - Parses comma-separated `(datetime)value` entries into individual rows
 - Calculates `TimeSinceRandomisation`; filters to −12 to +120 h
+
+### `src/1_1_plymouth_clean_data.r`
+Loads and reshapes the Plymouth site data (`MecRox_Data_Plymouth_reorganised.xlsx`) to match the main UK-ROX variable names, producing `plymouth_data` and `plymouth_data_pfratio`, which are appended to the main datasets in `1_clean_data.r`.
 
 ---
 

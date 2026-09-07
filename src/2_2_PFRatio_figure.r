@@ -56,6 +56,7 @@ lowess_split_plot_pfratio <- ggplot(data_pfratio, aes(x = TimeSinceRandomisation
         panel.border = element_blank(),
         axis.line = element_line(colour = "black"),
         plot.margin = margin(5.5, 20, 5.5, 5.5)
-    )
+    ) +
+    coord_cartesian()
 
 ggsave("output/figures/lowess_pfratio_split.png", plot = lowess_split_plot_pfratio, width = 8, height = 5, dpi = 300)

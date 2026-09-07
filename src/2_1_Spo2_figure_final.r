@@ -49,6 +49,7 @@ lowess_split_plot <- ggplot(data, aes(x = TimeSinceRandomisation, y = SpO2Value)
             panel.border = element_blank(),
             axis.line = element_line(colour = "black"),
             plot.margin = margin(5.5, 20, 5.5, 5.5)) +
-    scale_y_continuous(limits = c(88, 100), breaks = seq(88, 100, by = 2), expand = expansion(mult = c(0, 0)))
+    scale_y_continuous(limits = c(88, 100), breaks = seq(88, 100, by = 2), expand = expansion(mult = c(0, 0))) +
+    coord_cartesian()
 
 ggsave("output/figures/lowess_spo2_split.png", plot = lowess_split_plot, width = 8, height = 5, dpi = 300)
