@@ -24,7 +24,6 @@ data <- bind_rows(data, plymouth_data)
 data <- data %>%
     filter(SpO2Value >= 80)
 
-
 #calculate time since randomisation from entry to the study 
 data <- data %>%
     mutate( TimeSinceRandomisation = as.numeric(difftime(SpO2Time, UKRoxTime, units = "hours")))    
@@ -55,6 +54,7 @@ data_pfratio <- read_excel("data/UKRoxData_V3.xlsx") %>%
         PFRatio_pre  = `PFRatio_Between_IMVStartTime_&_UKRoxTime`,
         PFRatio_post = `PFRatio_Between_UKRoxTime_+_5DaysUKRoxTime`
     ) %>%
+    filter(!is.na(MECROXStudy)) %>%
     distinct(MECROXStudy, .keep_all = TRUE) %>%
     # combine both PFRatio columns, handling NAs
     mutate(PFRatio = case_when(

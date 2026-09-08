@@ -10,6 +10,12 @@
         plymouth_hourly <- plymouth_hourly %>%
             mutate(`MecRox No.` = gsub("[^0-9]", "", `MecRox No.`))
 
+    # exclude patient 101
+        plymouth_patients <- plymouth_patients %>%
+            filter(`MecRox No.` != "101")
+        plymouth_hourly <- plymouth_hourly %>%
+            filter(`MecRox No.` != "101")
+
     # bring patient-level randomisation info onto each hourly reading and rename
     # columns to match the main UKRoxData variable names
         plymouth_patients_ukrox <- plymouth_patients %>%
