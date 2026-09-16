@@ -13,7 +13,7 @@ spo2_12h_summary <- data %>%
     group_by(MECROXStudy, TimeWindow) %>%
     summarise(
         n          = n(),
-        mean_SpO2  = mean(SpO2Value, na.rm = TRUE),
+        mean_SpO2  = mean(SpO2Value, na.rm = FALSE),
         .groups = "drop"
     )
 
@@ -24,8 +24,7 @@ spo2_12h_wide <- spo2_12h_summary %>%
         names_from  = TimeWindow,
         values_from = c(n, mean_SpO2),
         names_glue  = "{.value}_h{TimeWindow}"
-    )|> 
-    select(-mean_SpO2_h120)
+    )
     
 
 # produce table for SPO2 values stratified by treatment group
@@ -48,6 +47,12 @@ summary_spo2 <- spo2_12h_wide %>%
     modify_header(
         label ~ "**Time Since Randomisation (hours)**",
         estimate ~ "**Mean Difference**"
+    ) %>%
+    modify_table_body(
+        ~ .x %>%
+            mutate(label_numeric = as.numeric(label)) %>%
+            arrange(label_numeric) %>%
+            select(-label_numeric)
     )
 
 summary_spo2 %>%
@@ -69,7 +74,6 @@ summary_spo2_obs <- data %>%
         -12,
         floor(TimeSinceRandomisation / 12) * 12
     )) %>%
-    filter(TimeWindow < 120) %>%
     ungroup() %>%
     mutate(obs_id = row_number()) %>%
     pivot_wider(
@@ -94,6 +98,12 @@ summary_spo2_obs <- data %>%
     modify_header(
         label ~ "**Time Since Randomisation (hours)**",
         estimate ~ "**Mean Difference**"
+    ) %>%
+    modify_table_body(
+        ~ .x %>%
+            mutate(label_numeric = as.numeric(label)) %>%
+            arrange(label_numeric) %>%
+            select(-label_numeric)
     )
 
 summary_spo2_obs %>%

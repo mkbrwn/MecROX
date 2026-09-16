@@ -5,11 +5,12 @@ library(tidyverse)
 library(gtsummary)
 library(readxl)
 
-#load data 
+#load data
 data <- read_excel("data/UKRoxData.xlsx")
 
-# run cleaning script for plymouth data
+# run cleaning scripts for additional data
 source("src/1_1_plymouth_clean_data.R")
+source("src/1_1_clean_data_id14.r")
 #clean data
 data <- data %>%
     #select only relevant variables
@@ -17,8 +18,8 @@ data <- data %>%
     filter( !is.na(MECROXStudy), !is.na(SpO2Time), !is.na(SpO2Value)) %>% 
     mutate( SpO2Value = as.numeric(SpO2Value)) 
 
-#append plymouth data to the main dataset
-data <- bind_rows(data, plymouth_data)
+#append plymouth and ID14 data to the main dataset
+data <- bind_rows(data, plymouth_data, id14_data)
 
 # remove spot less than 80 
 data <- data %>%
@@ -34,8 +35,8 @@ data <- data %>%
     mutate( Maxtime = max(TimeSinceRandomisation, na.rm = T)) 
 
 #filter if time since randomisation is greater than 120 and < -12 (elibilitycriteria is 12 hours pre-randomisation)
-data <- data %>%
-    filter(TimeSinceRandomisation <= 120 & TimeSinceRandomisation >= -12)
+#data <- data %>%
+#    filter(TimeSinceRandomisation <= 120 & TimeSinceRandomisation >= -12)
 
 # recode treatment labels
 data <- data %>%
@@ -73,8 +74,8 @@ data_pfratio <- read_excel("data/UKRoxData_V3.xlsx") %>%
     ) %>%
     select(MECROXStudy, UKRoxTime, IMVStart, Treatment, PFRatioTime, PFRatioValue)
 
-#append plymouth PF ratio data
-data_pfratio <- bind_rows(data_pfratio, plymouth_data_pfratio)
+#append plymouth and ID14 PF ratio data
+data_pfratio <- bind_rows(data_pfratio, plymouth_data_pfratio, id14_data_pfratio)
 
 # recode treatment labels
 data_pfratio <- data_pfratio %>%
@@ -82,5 +83,5 @@ data_pfratio <- data_pfratio %>%
 
 # calculate time since randomisation and apply same window as SpO2 data
 data_pfratio <- data_pfratio %>%
-    mutate(TimeSinceRandomisation = as.numeric(difftime(PFRatioTime, UKRoxTime, units = "hours"))) %>%
-    filter(TimeSinceRandomisation <= 120 & TimeSinceRandomisation >= -12)
+    mutate(TimeSinceRandomisation = as.numeric(difftime(PFRatioTime, UKRoxTime, units = "hours")))
+    # filter(TimeSinceRandomisation <= 120 & TimeSinceRandomisation >= -12)

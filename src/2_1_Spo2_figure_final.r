@@ -2,6 +2,37 @@
 
 source("src/1_clean_data.r")
 
+# manually fit a per-treatment loess (rather than using geom_smooth's
+# fullrange, which extrapolates using the whole panel's x range, including
+# into the pre-randomisation segment) so extrapolation runs from time 0 to
+# the panel's right edge, regardless of each group's own observed range.
+# degree = 1 + surface = "direct" makes loess locally linear, so the
+# extrapolated segments are a straight continuation of the boundary trend,
+# with the SE (and so the ribbon) widening accordingly
+post_rand_smooth <- data %>%
+    ungroup() %>%
+    filter(TimeSinceRandomisation >= 0) %>%
+    group_by(Treatment) %>%
+    group_modify(~ {
+        fit <- loess(
+            SpO2Value ~ TimeSinceRandomisation, data = .x,
+            span = 0.75, degree = 1,
+            control = loess.control(surface = "direct")
+        )
+        xseq <- seq(0, 120, length.out = 100)
+        pred <- predict(fit, newdata = data.frame(TimeSinceRandomisation = xseq), se = TRUE)
+        tibble(
+            TimeSinceRandomisation = xseq,
+            SpO2Value = pred$fit,
+            se = pred$se.fit,
+            df = pred$df
+        )
+    }) %>%
+    ungroup() %>%
+    mutate(
+        ymin = SpO2Value - qt(0.975, df) * se,
+        ymax = SpO2Value + qt(0.975, df) * se
+    )
 
 # produce a Lowess curve with separate pre- and post-randomisation segments
 lowess_split_plot <- ggplot(data, aes(x = TimeSinceRandomisation, y = SpO2Value)) +
@@ -12,10 +43,15 @@ lowess_split_plot <- ggplot(data, aes(x = TimeSinceRandomisation, y = SpO2Value)
         method = "lm", se = TRUE, fill = "grey70"
     ) +
     # separate curves per treatment post-randomisation
-    geom_smooth(
-        data = data %>% filter(TimeSinceRandomisation >= 0),
-        aes(colour = factor(Treatment)),
-        method = "loess", se = TRUE, span = 0.75, fill = "grey70"   
+    geom_ribbon(
+        data = post_rand_smooth,
+        aes(x = TimeSinceRandomisation, y = NULL, ymin = ymin, ymax = ymax, group = Treatment),
+        fill = "grey70", inherit.aes = FALSE
+    ) +
+    geom_line(
+        data = post_rand_smooth,
+        aes(x = TimeSinceRandomisation, y = SpO2Value, colour = Treatment),
+        inherit.aes = FALSE, linewidth = 1
     ) +
     geom_vline(xintercept = 0, linetype = "dashed", colour = "grey40") +
     scale_colour_manual(
