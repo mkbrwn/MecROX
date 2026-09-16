@@ -21,6 +21,28 @@ data <- data %>%
 #append plymouth and ID14 data to the main dataset
 data <- bind_rows(data, plymouth_data, id14_data)
 
+#format date/time variables
+# source datetimes arrive as character strings in several formats
+# depending on which dataset a row came from - e.g. "27/03/2023 04:00",
+# "2023-03-27 04:00", or "2023-03-27 04:00:00.000" - so try each format in
+# turn, filling in only the rows still unparsed by the previous attempt
+parse_datetime_flex <- function(x) {
+    formats <- c("%Y-%m-%d %H:%M:%OS", "%Y-%m-%d %H:%M", "%d/%m/%Y %H:%M", "%Y-%m-%d")
+    out <- as.POSIXct(rep(NA_character_, length(x)))
+    for (fmt in formats) {
+        still_missing <- is.na(out)
+        out[still_missing] <- as.POSIXct(x[still_missing], format = fmt)
+    }
+    out
+}
+
+data <- data %>%
+    mutate(
+        SpO2Time = parse_datetime_flex(SpO2Time),
+        UKRoxTime = parse_datetime_flex(UKRoxTime),
+        IMVStart = parse_datetime_flex(IMVStart)
+    )
+
 # remove spot less than 80 
 data <- data %>%
     filter(SpO2Value >= 80)
@@ -33,6 +55,8 @@ data <- data %>%
 data <- data %>%
     group_by(MECROXStudy) %>%
     mutate( Maxtime = max(TimeSinceRandomisation, na.rm = T)) 
+
+
 
 #filter if time since randomisation is greater than 120 and < -12 (elibilitycriteria is 12 hours pre-randomisation)
 #data <- data %>%

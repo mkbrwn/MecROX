@@ -13,7 +13,7 @@ spo2_12h_summary <- data %>%
     group_by(MECROXStudy, TimeWindow) %>%
     summarise(
         n          = n(),
-        mean_SpO2  = mean(SpO2Value, na.rm = FALSE),
+        mean_SpO2  = mean(SpO2Value, na.rm = TRUE),
         .groups = "drop"
     )
 
@@ -30,6 +30,9 @@ spo2_12h_wide <- spo2_12h_summary %>%
 # produce table for SPO2 values stratified by treatment group
 summary_spo2 <- spo2_12h_wide %>%
     select(MECROXStudy, starts_with("mean_SpO2")) %>%
+    # drop windows with only a single patient's worth of data (94h, 120h) -
+    # too sparse to summarise and gtsummary auto-detects them as categorical
+    select(-any_of(c("mean_SpO2_h94", "mean_SpO2_h120"))) %>%
     rename_with(~ gsub("mean_SpO2_h", "", .x), starts_with("mean_SpO2")) %>%
     left_join(data %>% distinct(MECROXStudy, Treatment), by = "MECROXStudy") %>%
     select(-MECROXStudy) %>%
@@ -83,6 +86,9 @@ summary_spo2_obs <- data %>%
         names_prefix = "h"
     ) %>%
     select(-obs_id) %>%
+    # drop windows with only a single patient's worth of data (94h, 120h) -
+    # too sparse to summarise and gtsummary auto-detects them as categorical
+    select(-any_of(c("h94", "h120"))) %>%
     rename_with(~ gsub("^h", "", .x), starts_with("h")) %>%
     tbl_summary(
         by         = Treatment,
